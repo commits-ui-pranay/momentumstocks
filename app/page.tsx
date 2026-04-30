@@ -20,19 +20,46 @@ export default function Home() {
   }
 
   async function addStock() {
-    await supabase.from("active_stocks").insert({
-      stock_name: name,
-      buy_price: 100,
-      current_price: 120,
-      qty: 1,
-      momentum: "High",
-      valuation: "Fair",
-    });
+    if (!name) return;
 
-    setName("");
-    loadStocks();
+    const symbol = name.toUpperCase() + ".NS";
+
+    try {
+      // 🔥 Fetch live price
+      const res = await fetch(`/api/price?symbol=${symbol}`);
+      const data = await res.json();
+
+      const livePrice = data.price;
+
+      if (!livePrice) {
+        alert("Invalid stock or price not found");
+        return;
+      }
+
+      // ✅ Insert correct price
+      await supabase.from("active_stocks").insert({
+        stock_name: name.toUpperCase(),
+        buy_price: livePrice,        // ✅ FIXED
+        current_price: livePrice,    // ✅ FIXED
+        qty: 1,
+        momentum: "High",
+        valuation: "Fair",
+      });
+
+      setName("");
+      loadStocks();
+
+    } catch (err) {
+      console.error(err);
+      alert("Error fetching stock price");
+    }
   }
   async function updatePrices() {
+    if (stocks.length > 10) {
+      alert("Too many stocks, refresh manually");
+      return;
+    }
+    
     const updatedStocks = [];
 
     for (const s of stocks) {
