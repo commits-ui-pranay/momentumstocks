@@ -138,21 +138,50 @@ export default function Home() {
               ? ((profit / s.buy_price) * 100).toFixed(2)
               : "0";
 
+          async function sellStock() {
+            // 1. Move to past trades
+            await supabase.from("past_trades").insert({
+              stock_name: s.stock_name,
+              buy_price: s.buy_price,
+              sell_price: s.current_price,
+              profit: profit,
+            });
+
+            // 2. Remove from active stocks
+            await supabase.from("active_stocks").delete().eq("id", s.id);
+
+            // 3. Refresh UI
+            loadStocks();
+            loadPastTrades();
+          }
+
           return (
-            <div key={s.id} className="bg-white p-5 rounded-2xl shadow">
+            <div
+              key={s.id}
+              className="bg-gray-900 p-5 rounded-2xl shadow-lg border border-gray-800"
+            >
               <h2 className="text-xl font-bold">{s.stock_name}</h2>
 
-              <p>Buy: ₹{s.buy_price}</p>
-              <p>Current: ₹{s.current_price}</p>
+              <p className="text-gray-400">Buy: ₹{s.buy_price}</p>
+              <p className="text-gray-400">Current: ₹{s.current_price}</p>
 
+              {/* ✅ Profit + % */}
               <p
                 className={`font-bold mt-2 ${
-                  profit >= 0 ? "text-green-600" : "text-red-600"
+                  profit >= 0 ? "text-green-500" : "text-red-500"
                 }`}
               >
                 ₹{profit} ({profit >= 0 ? "+" : ""}
                 {percent}%)
               </p>
+
+              {/* ✅ SELL BUTTON BACK */}
+              <button
+                onClick={sellStock}
+                className="mt-4 w-full bg-red-600 hover:bg-red-700 transition text-white px-4 py-2 rounded-xl"
+              >
+                Sell
+              </button>
             </div>
           );
         })}
