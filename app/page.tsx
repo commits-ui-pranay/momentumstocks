@@ -133,30 +133,17 @@ export default function Home() {
         {stocks.map((s) => {
           const profit = s.current_price - s.buy_price;
 
-          async function sellStock() {
-            // 1. insert into past trades
-            await supabase.from("past_trades").insert({
-              stock_name: s.stock_name,
-              buy_price: s.buy_price,
-              sell_price: s.current_price,
-              profit: profit,
-            });
-
-            // 2. delete from active stocks
-            await supabase.from("active_stocks").delete().eq("id", s.id);
-
-            // 3. reload UI
-            loadStocks();
-          }
+          const percent =
+            s.buy_price > 0
+              ? ((profit / s.buy_price) * 100).toFixed(2)
+              : "0";
 
           return (
             <div key={s.id} className="bg-white p-5 rounded-2xl shadow">
               <h2 className="text-xl font-bold">{s.stock_name}</h2>
+
               <p>Buy: ₹{s.buy_price}</p>
               <p>Current: ₹{s.current_price}</p>
-
-              const profit = s.current_price - s.buy_price;
-              const percent = ((profit / s.buy_price) * 100).toFixed(2);
 
               <p
                 className={`font-bold mt-2 ${
@@ -166,13 +153,6 @@ export default function Home() {
                 ₹{profit} ({profit >= 0 ? "+" : ""}
                 {percent}%)
               </p>
-
-              <button
-                onClick={sellStock}
-                className="mt-4 bg-red-500 text-white px-4 py-2 rounded-xl"
-              >
-                Sell
-              </button>
             </div>
           );
         })}
