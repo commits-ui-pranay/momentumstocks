@@ -155,8 +155,16 @@ export default function Home() {
               <p>Buy: ₹{s.buy_price}</p>
               <p>Current: ₹{s.current_price}</p>
 
-              <p className="text-green-600 font-bold">
-                Profit: ₹{profit}
+              const profit = s.current_price - s.buy_price;
+              const percent = ((profit / s.buy_price) * 100).toFixed(2);
+
+              <p
+                className={`font-bold mt-2 ${
+                  profit >= 0 ? "text-green-600" : "text-red-600"
+                }`}
+              >
+                ₹{profit} ({profit >= 0 ? "+" : ""}
+                {percent}%)
               </p>
 
               <button
