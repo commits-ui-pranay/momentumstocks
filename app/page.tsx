@@ -228,43 +228,37 @@ export default function Home() {
         </div>
       </div>
       <h2 className="text-2xl font-bold mt-10">Past Trades</h2>
-      <p
-        className={`text-sm mb-3 font-semibold ${
-          Number(accruedPercent) >= 0
-            ? "text-green-400"
-            : "text-red-400"
-        }`}
-      >
-        Accrued P/L: {accruedPercent}%
-      </p>
+
       <div className="grid md:grid-cols-3 gap-4 mt-4">
-        {pastTrades.map((p) => (
-          <div key={p.id} className="bg-gray-900 border border-gray-800 p-5 rounded-2xl text-white"
-            
-            <h3 className="font-bold">{p.stock_name}</h3>
-
-            <p>Buy: INR {p.buy_price}</p>
-            <p>Sell: INR {p.sell_price}</p>
-            {/* ✅ ADD DATES HERE */}
-            <p className="text-xs text-gray-500">
-              Buy Date: {new Date(p.buy_date).toLocaleDateString()}
-            </p>
-
-            <p className="text-xs text-gray-500">
-              Sell Date: {new Date(p.sell_date).toLocaleDateString()}
-            </p>
-
-            {/* ✅ UPDATE PROFIT DISPLAY */}
-            <p
-              className={`font-bold ${
-                p.profit >= 0 ? "text-green-600" : "text-red-600"
-              }`}
+        {pastTrades.map((p) => {
+          return (
+            <div
+              key={p.id}
+              className="bg-gray-900 border border-gray-800 p-5 rounded-2xl text-white"
             >
-              Profit: ₹{p.profit} ({p.percent?.toFixed(2)}%)
-            </p>
+              <h3 className="font-bold">{p.stock_name}</h3>
 
-          </div>
-        ))}
+              <p>Buy: INR {p.buy_price}</p>
+              <p>Sell: INR {p.sell_price}</p>
+
+              <p className="text-xs text-gray-500">
+                Buy Date: {new Date(p.buy_date).toLocaleDateString()}
+              </p>
+
+              <p className="text-xs text-gray-500">
+                Sell Date: {new Date(p.sell_date).toLocaleDateString()}
+              </p>
+
+              <p
+                className={`font-bold ${
+                  p.profit >= 0 ? "text-green-400" : "text-red-400"
+                }`}
+              >
+                Profit: ₹{p.profit} ({p.percent?.toFixed(2)}%)
+              </p>
+            </div>
+          );
+        })}
       </div>
     </main>
   );
