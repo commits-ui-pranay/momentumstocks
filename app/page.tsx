@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
   const [stocks, setStocks] = useState<any[]>([]);
   const [pastTrades, setPastTrades] = useState<any[]>([]);
   const [name, setName] = useState("");
@@ -91,15 +94,30 @@ export default function Home() {
     loadStocks();
   }
   useEffect(() => {
-    loadStocks();
-    loadPastTrades();
+  // 🔐 Check login
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) {
+        // ❌ Not logged in → go to login page
+        router.push("/login");
+      } else {
+        // ✅ Logged in → store user
+        setUser(data.user);
 
+        // Load data only after login
+        loadStocks();
+        loadPastTrades();
+      }
+    });
+
+    // 🔄 Auto refresh prices
     const interval = setInterval(() => {
       updatePrices();
-    }, 30000); // 30 seconds
+    }, 30000);
 
     return () => clearInterval(interval);
   }, []);
+
+  if (!user) return null;
 
   return (
     <main className="p-10 min-h-screen bg-black text-white">
