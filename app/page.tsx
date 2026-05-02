@@ -105,7 +105,7 @@ export default function Home() {
     <main className="p-10 min-h-screen bg-black text-white">
       
       <h1 className="text-4xl font-bold text-blue-500">
-        Jacks Terminal
+        Jacks Terminal | Momentum Stocks Dashboard
       </h1>
 
       <div className="mt-6 flex gap-3">
