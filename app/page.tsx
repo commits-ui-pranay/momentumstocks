@@ -23,39 +23,20 @@ export default function Home() {
   }
 
   async function addStock() {
-    if (!name) return;
+    if (!isAdmin) return;
 
-    const symbol = name.toUpperCase() + ".NS";
+    const res = await fetch(`/api/price?symbol=${name}`);
+    const data = await res.json();
 
-    try {
-      // 🔥 Fetch live price
-      const res = await fetch(`/api/price?symbol=${symbol}`);
-      const data = await res.json();
+    await supabase.from("active_stocks").insert({
+      stock_name: name,
+      buy_price: data.price,
+      current_price: data.price,
+      buy_date: new Date().toISOString(), // ✅ ADD THIS
+    });
 
-      const livePrice = data.price;
-
-      if (!livePrice) {
-        alert("Invalid stock or price not found");
-        return;
-      }
-
-      // ✅ Insert correct price
-      await supabase.from("active_stocks").insert({
-        stock_name: name.toUpperCase(),
-        buy_price: livePrice,        // ✅ FIXED
-        current_price: livePrice,    // ✅ FIXED
-        qty: 1,
-        momentum: "High",
-        valuation: "Fair",
-      });
-
-      setName("");
-      loadStocks();
-
-    } catch (err) {
-      console.error(err);
-      alert("Error fetching stock price");
-    }
+    setName("");
+    loadStocks();
   }
   async function updatePrices() {
     if (stocks.length > 10) {
@@ -108,7 +89,27 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);   // ✅ IMPORTANT
 
+  const projectedPercent =
+  stocks.length > 0
+    ? (
+        stocks.reduce((acc, s) => {
+          const profit = s.current_price - s.buy_price;
+          const percent =
+            s.buy_price > 0 ? (profit / s.buy_price) * 100 : 0;
+          return acc + percent;
+        }, 0) / stocks.length
+      ).toFixed(2)
+    : "0.00";
   
+  const accruedPercent =
+    pastTrades.length > 0
+      ? (
+          pastTrades.reduce(
+            (acc, t) => acc + (t.percent || 0),
+            0
+          ) / pastTrades.length
+        ).toFixed(2)
+      : "0.00";
 
   return (
     <main className="p-10 min-h-screen bg-black text-white">
@@ -145,6 +146,15 @@ export default function Home() {
         <h2 className="text-xl font-semibold text-gray-300 mb-4">
           Current Trending Stocks
         </h2>
+        <p
+          className={`text-sm mb-3 font-semibold ${
+            Number(projectedPercent) >= 0
+              ? "text-green-400"
+              : "text-red-400"
+          }`}
+        >
+          Projected P/L: {projectedPercent}%
+        </p>
 
         <div className="space-y-4">
           {stocks.map((s) => {
@@ -156,11 +166,21 @@ export default function Home() {
                 : "0";
 
             async function sellStock() {
+              const profit = s.current_price - s.buy_price;
+
+              const percent =
+                s.buy_price > 0
+                  ? (profit / s.buy_price) * 100
+                  : 0;
+
               await supabase.from("past_trades").insert({
                 stock_name: s.stock_name,
                 buy_price: s.buy_price,
                 sell_price: s.current_price,
                 profit: profit,
+                percent: percent, // ✅ ADD
+                buy_date: s.buy_date, // ✅ ADD
+                sell_date: new Date().toISOString(), // ✅ ADD
               });
 
               await supabase.from("active_stocks").delete().eq("id", s.id);
@@ -176,8 +196,14 @@ export default function Home() {
               >
                 <div>
                   <p className="font-bold">{s.stock_name}</p>
+
                   <p className="text-gray-400 text-sm">
                     Buy ₹{s.buy_price} → ₹{s.current_price}
+                  </p>
+
+                  {/* ✅ ADD THIS LINE HERE */}
+                  <p className="text-xs text-gray-500">
+                    Buy Date: {new Date(s.buy_date).toLocaleDateString()}
                   </p>
 
                   <p
@@ -202,16 +228,41 @@ export default function Home() {
         </div>
       </div>
       <h2 className="text-2xl font-bold mt-10">Past Trades</h2>
-
+      <p
+        className={`text-sm mb-3 font-semibold ${
+          Number(accruedPercent) >= 0
+            ? "text-green-400"
+            : "text-red-400"
+        }`}
+      >
+        Accrued P/L: {accruedPercent}%
+      </p>
       <div className="grid md:grid-cols-3 gap-4 mt-4">
         {pastTrades.map((p) => (
-          <div key={p.id} className="bg-white p-5 rounded-2xl shadow">
+          <div key={p.id} className="bg-gray-900 border border-gray-800 p-5 rounded-2xl text-white"
+            
             <h3 className="font-bold">{p.stock_name}</h3>
-            <p>Buy: ₹{p.buy_price}</p>
-            <p>Sell: ₹{p.sell_price}</p>
-            <p className="text-green-600 font-bold">
-              Profit: ₹{p.profit}
+
+            <p>Buy: INR {p.buy_price}</p>
+            <p>Sell: INR {p.sell_price}</p>
+            {/* ✅ ADD DATES HERE */}
+            <p className="text-xs text-gray-500">
+              Buy Date: {new Date(p.buy_date).toLocaleDateString()}
             </p>
+
+            <p className="text-xs text-gray-500">
+              Sell Date: {new Date(p.sell_date).toLocaleDateString()}
+            </p>
+
+            {/* ✅ UPDATE PROFIT DISPLAY */}
+            <p
+              className={`font-bold ${
+                p.profit >= 0 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              Profit: ₹{p.profit} ({p.percent?.toFixed(2)}%)
+            </p>
+
           </div>
         ))}
       </div>
