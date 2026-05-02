@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 
 
 export default function Home() {
-  const isAdmin = true;
+  const [isAdmin, setIsAdmin] = useState(false);
   
   const [stocks, setStocks] = useState<any[]>([]);
   const [pastTrades, setPastTrades] = useState<any[]>([]);
@@ -97,10 +97,14 @@ export default function Home() {
     loadStocks();
     loadPastTrades();
 
-    const interval = setInterval(() => {
-      updatePrices();
-    }, 30000);
+    // 🔐 Check admin flag
+    const adminFlag = localStorage.getItem("admin");
 
+    if (adminFlag === "true") {
+      setIsAdmin(true);
+    }
+
+    const interval = setInterval(updatePrices, 30000);
     return () => clearInterval(interval);
   }, []);   // ✅ IMPORTANT
 
