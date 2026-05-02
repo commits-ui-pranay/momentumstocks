@@ -102,9 +102,10 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="p-10 min-h-screen bg-slate-50">
-      <h1 className="text-4xl font-bold text-blue-700">
-        momentumstocks Dashboard
+    <main className="p-10 min-h-screen bg-black text-white">
+      
+      <h1 className="text-4xl font-bold text-blue-500">
+        Jacks Terminal
       </h1>
 
       <div className="mt-6 flex gap-3">
