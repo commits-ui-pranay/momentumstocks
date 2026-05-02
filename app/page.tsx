@@ -130,62 +130,66 @@ export default function Home() {
         </button>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4 mt-8">
-        {stocks.map((s) => {
-          const profit = s.current_price - s.buy_price;
+      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mt-8 shadow-lg">
 
-          const percent =
-            s.buy_price > 0
-              ? ((profit / s.buy_price) * 100).toFixed(2)
-              : "0";
+        <h2 className="text-xl font-semibold text-gray-300 mb-4">
+          Current Trending Stocks
+        </h2>
 
-          async function sellStock() {
-            // 1. Move to past trades
-            await supabase.from("past_trades").insert({
-              stock_name: s.stock_name,
-              buy_price: s.buy_price,
-              sell_price: s.current_price,
-              profit: profit,
-            });
+        <div className="space-y-4">
+          {stocks.map((s) => {
+            const profit = s.current_price - s.buy_price;
 
-            // 2. Remove from active stocks
-            await supabase.from("active_stocks").delete().eq("id", s.id);
+            const percent =
+              s.buy_price > 0
+                ? ((profit / s.buy_price) * 100).toFixed(2)
+                : "0";
 
-            // 3. Refresh UI
-            loadStocks();
-            loadPastTrades();
-          }
+            async function sellStock() {
+              await supabase.from("past_trades").insert({
+                stock_name: s.stock_name,
+                buy_price: s.buy_price,
+                sell_price: s.current_price,
+                profit: profit,
+              });
 
-          return (
-            <div
-              key={s.id}
-              className="bg-gray-900 p-5 rounded-2xl shadow-lg border border-gray-800"
-            >
-              <h2 className="text-xl font-bold">{s.stock_name}</h2>
+              await supabase.from("active_stocks").delete().eq("id", s.id);
 
-              <p className="text-gray-400">Buy: ₹{s.buy_price}</p>
-              <p className="text-gray-400">Current: ₹{s.current_price}</p>
+              loadStocks();
+              loadPastTrades();
+            }
 
-              {/* ✅ Profit + % */}
-              <p
-                className={`font-bold mt-2 ${
-                  profit >= 0 ? "text-green-500" : "text-red-500"
-                }`}
+            return (
+              <div
+                key={s.id}
+                className="flex justify-between items-center bg-black border border-gray-800 p-4 rounded-xl"
               >
-                ₹{profit} ({profit >= 0 ? "+" : ""}
-                {percent}%)
-              </p>
+                <div>
+                  <p className="font-bold">{s.stock_name}</p>
+                  <p className="text-gray-400 text-sm">
+                    Buy ₹{s.buy_price} → ₹{s.current_price}
+                  </p>
 
-              {/* ✅ SELL BUTTON BACK */}
-              <button
-                onClick={sellStock}
-                className="mt-4 w-full bg-red-600 hover:bg-red-700 transition text-white px-4 py-2 rounded-xl"
-              >
-                Sell
-              </button>
-            </div>
-          );
-        })}
+                  <p
+                    className={`text-sm font-semibold ${
+                      profit >= 0 ? "text-green-500" : "text-red-500"
+                    }`}
+                  >
+                    ₹{profit.toFixed(2)} ({profit >= 0 ? "+" : ""}
+                    {percent}%)
+                  </p>
+                </div>
+
+                <button
+                  onClick={sellStock}
+                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg"
+                >
+                  Sell
+                </button>
+              </div>
+            );
+          })}
+        </div>
       </div>
       <h2 className="text-2xl font-bold mt-10">Past Trades</h2>
 
