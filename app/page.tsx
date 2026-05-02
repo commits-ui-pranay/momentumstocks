@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+
 
 export default function Home() {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const isAdmin = true;
+  
   const [stocks, setStocks] = useState<any[]>([]);
   const [pastTrades, setPastTrades] = useState<any[]>([]);
   const [name, setName] = useState("");
@@ -94,30 +94,17 @@ export default function Home() {
     loadStocks();
   }
   useEffect(() => {
-  // 🔐 Check login
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) {
-        // ❌ Not logged in → go to login page
-        router.push("/login");
-      } else {
-        // ✅ Logged in → store user
-        setUser(data.user);
+    loadStocks();
+    loadPastTrades();
 
-        // Load data only after login
-        loadStocks();
-        loadPastTrades();
-      }
-    });
-
-    // 🔄 Auto refresh prices
     const interval = setInterval(() => {
       updatePrices();
     }, 30000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, []);   // ✅ IMPORTANT
 
-  if (!user) return null;
+  
 
   return (
     <main className="p-10 min-h-screen bg-black text-white">
@@ -125,7 +112,7 @@ export default function Home() {
       <h1 className="text-4xl font-bold text-blue-500">
         Jacks Terminal | Momentum Stocks Dashboard
       </h1>
-
+    {isAdmin && (
       <div className="mt-6 flex gap-3">
         <input
           value={name}
@@ -147,6 +134,7 @@ export default function Home() {
           Refresh Prices
         </button>
       </div>
+    )}
 
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mt-8 shadow-lg">
 
