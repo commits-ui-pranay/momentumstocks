@@ -117,8 +117,8 @@ export default function Home() {
       <h1 className="text-4xl font-bold text-blue-500">
         Jacks Terminal | Momentum Stocks Dashboard
       </h1>
-    {isAdmin && (
-      <div className="mt-6 flex gap-3">
+    
+      <div className="mt-6 flex gap-3 items-center">
 
         {/* ✅ ADMIN ONLY */}
         {isAdmin && (
@@ -139,16 +139,16 @@ export default function Home() {
           </>
         )}
 
-        {/* ✅ ALWAYS VISIBLE (PUBLIC + ADMIN) */}
+        {/* ✅ ALWAYS VISIBLE */}
         <button
           onClick={updatePrices}
-          className="bg-green-500 text-white px-4 py-2 rounded-xl"
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl ml-auto"
         >
           🔄 Refresh Prices
         </button>
 
       </div>
-    )}
+    
 
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mt-8 shadow-lg">
 
