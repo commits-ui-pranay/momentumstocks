@@ -119,25 +119,34 @@ export default function Home() {
       </h1>
     {isAdmin && (
       <div className="mt-6 flex gap-3">
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Stock name"
-          className="border px-4 py-2 rounded-xl"
-        />
 
-        <button
-          onClick={addStock}
-          className="bg-blue-600 text-white px-4 py-2 rounded-xl"
-        >
-          Add Stock
-        </button>
+        {/* ✅ ADMIN ONLY */}
+        {isAdmin && (
+          <>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Stock name"
+              className="bg-gray-800 border border-gray-700 px-4 py-2 rounded-xl text-white"
+            />
+
+            <button
+              onClick={addStock}
+              className="bg-blue-600 text-white px-4 py-2 rounded-xl"
+            >
+              Add Stock
+            </button>
+          </>
+        )}
+
+        {/* ✅ PUBLIC + ADMIN */}
         <button
           onClick={updatePrices}
-          className="bg-green-500 hover:bg-green-600 transition text-white px-4 py-2 rounded-xl"
+          className="bg-green-500 text-white px-4 py-2 rounded-xl"
         >
           Refresh Prices
         </button>
+
       </div>
     )}
 
