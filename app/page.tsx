@@ -139,12 +139,12 @@ export default function Home() {
           </>
         )}
 
-        {/* ✅ PUBLIC + ADMIN */}
+        {/* ✅ ALWAYS VISIBLE (PUBLIC + ADMIN) */}
         <button
           onClick={updatePrices}
           className="bg-green-500 text-white px-4 py-2 rounded-xl"
         >
-          Refresh Prices
+          🔄 Refresh Prices
         </button>
 
       </div>
