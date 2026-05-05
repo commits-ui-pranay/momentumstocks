@@ -50,7 +50,9 @@ export default function Home() {
       const symbol = s.stock_name + ".NS";
 
       try {
-        const res = await fetch(`/api/price?symbol=${symbol}`);
+        const res = await fetch(`/api/price?symbol=${s.stock_name}`, {
+          cache: "no-store",
+        });
         const data = await res.json();
 
         if (data.price) {
@@ -115,7 +117,7 @@ export default function Home() {
     // redirect to broker page
     window.location.href = `/brokers?stock=${stockName}`;
   }
-  
+
   return (
     <main className="p-10 min-h-screen bg-black text-white">
       
