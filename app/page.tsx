@@ -111,6 +111,11 @@ export default function Home() {
         ).toFixed(2)
       : "0.00";
 
+  function handleBuy(stockName: string) {
+    // redirect to broker page
+    window.location.href = `/brokers?stock=${stockName}`;
+  }
+  
   return (
     <main className="p-10 min-h-screen bg-black text-white">
       
@@ -197,6 +202,16 @@ export default function Home() {
               loadStocks();
               loadPastTrades();
             }
+            const buyDate = new Date(s.buy_date);
+            const now = new Date();
+
+            const diffTime = now.getTime() - buyDate.getTime();
+            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+            const canBuy = diffDays <= 4;
+            const isAdmin =
+              typeof window !== "undefined" &&
+              localStorage.getItem("admin") === "true";
 
             return (
               <div
@@ -225,12 +240,36 @@ export default function Home() {
                   </p>
                 </div>
 
-                <button
-                  onClick={sellStock}
-                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg"
-                >
-                  Sell
-                </button>
+                <div className="flex gap-2 mt-2 items-center">
+
+                  {/* ✅ BUY BUTTON */}
+                  {canBuy && (
+                    <button
+                      onClick={() => handleBuy(s.stock_name)}
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl"
+                    >
+                      Buy
+                    </button>
+                  )}
+
+                  {/* ❌ SHOW MESSAGE WHEN BUY CLOSED */}
+                  {!canBuy && (
+                    <p className="text-xs text-red-400 font-medium">
+                      Buy window closed for this stock
+                    </p>
+                  )}
+
+                  {/* 🔒 SELL BUTTON (ADMIN ONLY) */}
+                  {isAdmin && (
+                    <button
+                      onClick={sellStock}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl"
+                    >
+                      Sell
+                    </button>
+                  )}
+
+                </div>
               </div>
             );
           })}
