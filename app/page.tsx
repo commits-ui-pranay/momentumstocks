@@ -29,7 +29,7 @@ export default function Home() {
     const data = await res.json();
 
     await supabase.from("active_stocks").insert({
-      stock_name: name,
+      stock_name: name.toUpperCase() + ".NS",
       buy_price: data.price,
       current_price: data.price,
       buy_date: new Date().toISOString(), // ✅ ADD THIS
@@ -80,16 +80,22 @@ export default function Home() {
     loadStocks();
     loadPastTrades();
 
-    // 🔐 Check admin flag
+    // 🔐 Check admin
     const adminFlag = localStorage.getItem("admin");
 
     if (adminFlag === "true") {
       setIsAdmin(true);
     }
 
-    const interval = setInterval(updatePrices, 30000);
+    // 🔄 Auto refresh prices every 30 seconds
+    const interval = setInterval(() => {
+      updatePrices();
+    }, 30000);
+
+    // 🧹 Cleanup interval
     return () => clearInterval(interval);
-  }, []);   // ✅ IMPORTANT
+
+  }, []);
 
   const projectedPercent =
   stocks.length > 0
