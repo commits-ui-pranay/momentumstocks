@@ -47,22 +47,33 @@ export default function Home() {
     const updatedStocks = [];
 
     for (const s of stocks) {
-      const symbol = s.stock_name + ".NS";
+
+      const symbol = s.stock_name;
 
       try {
-        const res = await fetch(`/api/price?symbol=${s.stock_name}`, {
-          cache: "no-store",
-        });
+
+        const res = await fetch(
+          `/api/price?symbol=${symbol}`,
+          {
+            cache: "no-store",
+          }
+        );
+
         const data = await res.json();
 
         if (data.price) {
+
           updatedStocks.push({
             id: s.id,
             price: data.price,
           });
+
         }
+
       } catch (err) {
+
         console.log("Error updating:", s.stock_name);
+
       }
     }
 
