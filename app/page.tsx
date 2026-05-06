@@ -10,7 +10,7 @@ export default function Home() {
   const [stocks, setStocks] = useState<any[]>([]);
   const [pastTrades, setPastTrades] = useState<any[]>([]);
   const [name, setName] = useState("");
-  
+  const [lastUpdated, setLastUpdated] = useState("");
 
   async function loadStocks() {
     const { data } = await supabase.from("active_stocks").select("*");
@@ -86,6 +86,7 @@ export default function Home() {
     }
 
     loadStocks();
+    setLastUpdated(new Date().toLocaleTimeString());
   }
   useEffect(() => {
     loadStocks();
@@ -170,7 +171,9 @@ export default function Home() {
         >
           🔄 Refresh Prices
         </button>
-
+        <p className="text-xs text-green-400 mt-2">
+          ● Live Updated: {lastUpdated || "Waiting..."}
+        </p>
       </div>
     
 
