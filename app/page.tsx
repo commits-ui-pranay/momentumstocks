@@ -38,6 +38,48 @@ export default function Home() {
     setName("");
     loadStocks();
   }
+  function handleBuy(stockName: string) {
+
+    const cleanSymbol = stockName.replace(".NS", "");
+
+    const broker = prompt(
+      "Choose Broker:\n1 = Zerodha\n2 = Groww\n3 = Angel One\n4 = Upstox\n5 = 5Paisa\n6 = Dhan"
+    );
+
+    let url = "";
+
+    switch (broker) {
+
+      case "1":
+        url = `https://kite.zerodha.com/chart/ext/ciq/NSE/${cleanSymbol}/${cleanSymbol}`;
+        break;
+
+      case "2":
+        url = `https://groww.in/stocks/${cleanSymbol.toLowerCase()}`;
+        break;
+
+      case "3":
+        url = `https://www.angelone.in/stocks/${cleanSymbol.toLowerCase()}`;
+        break;
+
+      case "4":
+        url = `https://upstox.com/stocks/${cleanSymbol.toLowerCase()}`;
+        break;
+
+      case "5":
+        url = `https://www.5paisa.com/stocks/${cleanSymbol.toLowerCase()}-share-price`;
+        break;
+
+      case "6":
+        url = `https://dhan.co/stocks/${cleanSymbol.toLowerCase()}/`;
+        break;
+
+      default:
+        return;
+    }
+
+    window.open(url, "_blank");
+  }
   async function updatePrices() {
     if (stocks.length > 10) {
       alert("Too many stocks, refresh manually");
@@ -131,11 +173,7 @@ export default function Home() {
         ).toFixed(2)
       : "0.00";
 
-  function handleBuy(stockName: string) {
-    // redirect to broker page
-    window.location.href = `/brokers?stock=${stockName}`;
-  }
-
+  
   return (
     <main className="p-10 min-h-screen bg-black text-white">
       
