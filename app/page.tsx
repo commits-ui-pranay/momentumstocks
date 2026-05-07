@@ -12,7 +12,9 @@ export default function Home() {
   const [name, setName] = useState("");
   const [lastUpdated, setLastUpdated] = useState("");
   const [showDisclaimer, setShowDisclaimer] = useState(false);
-
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  
+  
   async function loadStocks() {
     const { data } = await supabase.from("active_stocks").select("*");
     setStocks(data || []);
@@ -465,6 +467,53 @@ export default function Home() {
           );
         })}
       </div>
+    {/* ❤️ Support Button */}
+    <button
+      onClick={() => setShowSupportModal(true)}
+      className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl animate-bounce z-40"
+    >
+      ❤️
+    </button>
+    {/* 💙 Support Modal */}
+    {showSupportModal && (
+
+      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+
+        <div className="bg-gray-900 border border-gray-700 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+
+          <h2 className="text-2xl font-bold text-blue-400 mb-4">
+            ❤️ Support Jacks Terminal
+          </h2>
+
+          <p className="text-gray-300 text-sm leading-6 mb-6">
+            Your support helps us continue improving Jacks Terminal with better market insights, stronger momentum tracking, and advanced analytics tools for the community.
+          </p>
+
+          <div className="flex justify-center mb-6">
+
+            <img
+              src="/jacks_terminal_upi_qr.png"
+              alt="Support Jacks Terminal QR"
+              className="w-64 h-64 rounded-2xl border border-gray-700 bg-white p-2"
+            />
+
+          </div>
+
+          <p className="text-gray-300 text-sm leading-6 mb-6">
+            If you find Jacks Terminal valuable, you can support the project by scanning the QR code below. Your contribution helps us improve market analytics, momentum tracking, and platform performance for the community.
+          </p>
+
+          <button
+            onClick={() => setShowSupportModal(false)}
+            className="w-full border border-gray-600 hover:bg-gray-800 text-gray-300 py-3 rounded-xl"
+          >
+            Close
+          </button>
+
+        </div>
+
+      </div>
+    )}
     </main>
   );
 }
