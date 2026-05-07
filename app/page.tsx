@@ -11,6 +11,7 @@ export default function Home() {
   const [pastTrades, setPastTrades] = useState<any[]>([]);
   const [name, setName] = useState("");
   const [lastUpdated, setLastUpdated] = useState("");
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   async function loadStocks() {
     const { data } = await supabase.from("active_stocks").select("*");
@@ -140,6 +141,62 @@ export default function Home() {
     if (adminFlag === "true") {
       setIsAdmin(true);
     }
+    const now = Date.now();
+
+    const disclaimerData = localStorage.getItem("disclaimerPrompt");
+
+    if (!disclaimerData) {
+
+      localStorage.setItem(
+        "disclaimerPrompt",
+        JSON.stringify({
+          count: 1,
+          lastShown: now,
+        })
+      );
+
+      setShowDisclaimer(true);
+
+    } else {
+
+      const parsed = JSON.parse(disclaimerData);
+
+      const twelveHours = 12 * 60 * 60 * 1000;
+
+      const within24Hours =
+        now - parsed.lastShown < 24 * 60 * 60 * 1000;
+
+      const canShowAgain =
+        parsed.count < 2 &&
+        now - parsed.lastShown >= twelveHours;
+
+      if (within24Hours && canShowAgain) {
+
+        localStorage.setItem(
+          "disclaimerPrompt",
+          JSON.stringify({
+            count: parsed.count + 1,
+            lastShown: now,
+          })
+        );
+
+        setShowDisclaimer(true);
+
+      }
+
+      if (!within24Hours) {
+
+        localStorage.setItem(
+          "disclaimerPrompt",
+          JSON.stringify({
+            count: 1,
+            lastShown: now,
+          })
+        );
+
+        setShowDisclaimer(true);
+      }
+    }
 
     // 🔄 Auto refresh prices every 30 seconds
     const interval = setInterval(() => {
@@ -176,7 +233,47 @@ export default function Home() {
   
   return (
     <main className="p-10 min-h-screen bg-black text-white">
-      
+      {showDisclaimer && (
+
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-8 max-w-2xl mx-4 shadow-2xl">
+
+            <h2 className="text-2xl font-bold text-blue-400 mb-6">
+              Important Investment Disclaimer
+            </h2>
+
+            <ul className="space-y-4 text-gray-300 text-sm leading-7">
+
+              <li>
+                • The stocks displayed on Jacks Terminal are provided strictly for educational and informational purposes only. Investors are advised to consult a qualified financial advisor before making any investment decisions.
+              </li>
+
+              <li>
+                • Stocks featured on Jacks Terminal are periodically refreshed and reviewed on a quarter-over-quarter (QoQ) basis to align with evolving market trends and company performance.
+              </li>
+
+              <li>
+                • The stocks showcased on this platform are selected based on strong market momentum, relative strength, and notable quarter-over-quarter business performance indicators.
+              </li>
+
+            </ul>
+
+            <div className="mt-8 flex justify-end">
+
+              <button
+                onClick={() => setShowDisclaimer(false)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-semibold"
+              >
+                OK
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
       <h1 className="text-4xl font-bold text-blue-500">
         Jacks Terminal | Momentum Stocks Dashboard
       </h1>
