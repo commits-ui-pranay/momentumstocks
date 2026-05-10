@@ -498,9 +498,14 @@ export default function Home() {
             />
 
           </div>
-
+          <a
+            href="upi://pay?pa=pranaygolle06-3@okhdfcbank&pn=Jacks%20Terminal&cu=INR"
+            className="block w-full bg-pink-600 hover:bg-pink-700 text-white text-center py-3 rounded-xl font-semibold mb-4"
+          >
+            Pay Now ❤️
+          </a>
           <p className="text-gray-300 text-sm leading-6 mb-6">
-            If you find Jacks Terminal valuable, you can support the project by scanning the QR code below. Your contribution helps us improve market analytics, momentum tracking, and platform performance for the community.
+            If you find Jacks Terminal valuable, you can support the project by scanning the QR code or click the Pay Now button . Your contribution helps us improve market analytics, momentum tracking, and platform performance for the community.
           </p>
 
           <button
