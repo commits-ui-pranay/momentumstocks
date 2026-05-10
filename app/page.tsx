@@ -500,7 +500,7 @@ export default function Home() {
           </div>
           
           <a
-            href="upi://pay?pa=pranaygolle06-3@okhdfcbank&pn=Jacks%20Terminal&am=1&cu=INR&tn=Support%20Jacks%20Terminal"
+            href="upi://pay?pa=pranaygolle06-3@okhdfcbank&pn=Jacks%20Terminal&cu=INR&tn=Support%20Jacks%20Terminal"
             className="block w-full bg-pink-600 hover:bg-pink-700 text-white text-center py-3 rounded-xl font-semibold mb-4"
           >
             Pay Now ❤️
