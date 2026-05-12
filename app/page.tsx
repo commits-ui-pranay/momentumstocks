@@ -32,7 +32,9 @@ export default function Home() {
     const data = await res.json();
 
     await supabase.from("active_stocks").insert({
-      stock_name: name.toUpperCase() + ".NS",
+      stock_name: name.toUpperCase().endsWith(".NS")
+        ? name.toUpperCase()
+        : name.toUpperCase() + ".NS",
       buy_price: data.price,
       current_price: data.price,
       buy_date: new Date().toISOString(), // ✅ ADD THIS
