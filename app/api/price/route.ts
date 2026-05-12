@@ -1,11 +1,9 @@
-import YahooFinance from "yahoo-finance2";
 import { NextResponse } from "next/server";
+import YahooFinance from "yahoo-finance2";
 
-// ✅ Create Yahoo instance
 const yahooFinance = new YahooFinance();
 
 export async function GET(req: Request) {
-
   try {
 
     const { searchParams } = new URL(req.url);
@@ -13,33 +11,44 @@ export async function GET(req: Request) {
     const symbol = searchParams.get("symbol");
 
     if (!symbol) {
-
       return NextResponse.json(
         { error: "No symbol provided" },
         { status: 400 }
       );
-
     }
 
-    // ✅ Fetch live quote
-    const quote: any = await yahooFinance.quote(symbol);
+    // 🔥 Search NSE symbol
+    const result: any = await yahooFinance.search(symbol);
 
-    console.log("LIVE:", quote.regularMarketPrice);
+    if (
+      !result ||
+      !result.quotes ||
+      result.quotes.length === 0
+    ) {
+      return NextResponse.json({
+        price: 0,
+        error: "No quote found",
+      });
+    }
+
+    // 🔥 Get exact Yahoo symbol
+    const quoteSymbol = result.quotes[0].symbol;
+
+    // 🔥 Fetch live market quote
+    const quote: any = await yahooFinance.quote(quoteSymbol);
 
     return NextResponse.json({
       price: quote.regularMarketPrice || 0,
-      symbol: quote.symbol || symbol,
       time: quote.regularMarketTime || null,
     });
 
   } catch (err) {
 
-    console.log("YAHOO ERROR:", err);
+    console.error("Yahoo Finance Error:", err);
 
-    return NextResponse.json(
-      { error: "Failed to fetch price" },
-      { status: 500 }
-    );
-
+    return NextResponse.json({
+      price: 0,
+      error: "Failed to fetch price",
+    });
   }
 }
