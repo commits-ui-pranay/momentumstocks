@@ -363,13 +363,11 @@ export default function Home() {
               loadStocks();
               loadPastTrades();
             }
-            const buyDate = new Date(s.buy_date);
-            const now = new Date();
+            const priceDifferencePercent =
+              ((s.current_price - s.buy_price) / s.buy_price) * 100;
 
-            const diffTime = now.getTime() - buyDate.getTime();
-            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+            const canBuy = priceDifferencePercent <= 2;
 
-            const canBuy = diffDays <= 4;
             const isAdmin =
               typeof window !== "undefined" &&
               localStorage.getItem("admin") === "true";
@@ -416,7 +414,7 @@ export default function Home() {
                   {/* ❌ SHOW MESSAGE WHEN BUY CLOSED */}
                   {!canBuy && (
                     <p className="text-xs text-red-400 font-medium">
-                      Buy window closed for this stock
+                      Stock moved beyond ideal buy range
                     </p>
                   )}
 
