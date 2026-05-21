@@ -5,6 +5,8 @@ import { supabase } from "@/lib/supabase";
 
 
 export default function Home() {
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   
   const [stocks, setStocks] = useState<any[]>([]);
@@ -137,9 +139,24 @@ export default function Home() {
   }
   useEffect(() => {
 
-    supabase.auth.getUser().then(({ data }) => {
+    async function initializeApp() {
 
-      const email = data.user?.email;
+      // ✅ CHECK LOGIN SESSION
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      // ❌ No login found
+      if (!session) {
+        window.location.href = "/login";
+        return;
+      }
+
+      // ✅ Save user
+      setUser(session.user);
+
+      // ✅ ADMIN CHECK
+      const email = session.user.email;
 
       if (email === "momentumstocksind@gmail.com") {
         setIsAdmin(true);
@@ -147,56 +164,20 @@ export default function Home() {
         setIsAdmin(false);
       }
 
-    });
-    loadStocks();
-    loadPastTrades();
+      // ✅ LOAD STOCK DATA
+      loadStocks();
+      loadPastTrades();
 
-    // 🔐 Check admin
-    
-    const now = Date.now();
+      // =========================
+      // ✅ DISCLAIMER POPUP LOGIC
+      // =========================
 
-    const disclaimerData = localStorage.getItem("disclaimerPrompt");
+      const now = Date.now();
 
-    if (!disclaimerData) {
+      const disclaimerData =
+        localStorage.getItem("disclaimerPrompt");
 
-      localStorage.setItem(
-        "disclaimerPrompt",
-        JSON.stringify({
-          count: 1,
-          lastShown: now,
-        })
-      );
-
-      setShowDisclaimer(true);
-
-    } else {
-
-      const parsed = JSON.parse(disclaimerData);
-
-      const twelveHours = 12 * 60 * 60 * 1000;
-
-      const within24Hours =
-        now - parsed.lastShown < 24 * 60 * 60 * 1000;
-
-      const canShowAgain =
-        parsed.count < 2 &&
-        now - parsed.lastShown >= twelveHours;
-
-      if (within24Hours && canShowAgain) {
-
-        localStorage.setItem(
-          "disclaimerPrompt",
-          JSON.stringify({
-            count: parsed.count + 1,
-            lastShown: now,
-          })
-        );
-
-        setShowDisclaimer(true);
-
-      }
-
-      if (!within24Hours) {
+      if (!disclaimerData) {
 
         localStorage.setItem(
           "disclaimerPrompt",
@@ -207,15 +188,65 @@ export default function Home() {
         );
 
         setShowDisclaimer(true);
+
+      } else {
+
+        const parsed = JSON.parse(disclaimerData);
+
+        const twelveHours =
+          12 * 60 * 60 * 1000;
+
+        const within24Hours =
+          now - parsed.lastShown <
+          24 * 60 * 60 * 1000;
+
+        const canShowAgain =
+          parsed.count < 2 &&
+          now - parsed.lastShown >= twelveHours;
+
+        if (within24Hours && canShowAgain) {
+
+          localStorage.setItem(
+            "disclaimerPrompt",
+            JSON.stringify({
+              count: parsed.count + 1,
+              lastShown: now,
+            })
+          );
+
+          setShowDisclaimer(true);
+
+        }
+
+        if (!within24Hours) {
+
+          localStorage.setItem(
+            "disclaimerPrompt",
+            JSON.stringify({
+              count: 1,
+              lastShown: now,
+            })
+          );
+
+          setShowDisclaimer(true);
+        }
       }
+
+      // ✅ FINISHED LOADING
+      setLoading(false);
     }
 
-    // 🔄 Auto refresh prices every 30 seconds
+    initializeApp();
+
+    // =========================
+    // ✅ AUTO REFRESH PRICES
+    // =========================
+
     const interval = setInterval(() => {
       updatePrices();
     }, 30000);
 
-    // 🧹 Cleanup interval
+    // ✅ CLEANUP
     return () => clearInterval(interval);
 
   }, []);
@@ -241,7 +272,13 @@ export default function Home() {
           ) / pastTrades.length
         ).toFixed(2)
       : "0.00";
-
+  if (loading) {
+    return (
+      <div className="text-white p-10">
+        Loading...
+      </div>
+    );
+  }
   
   return (
     <main className="p-10 min-h-screen bg-black text-white">
