@@ -137,33 +137,22 @@ export default function Home() {
   }
   useEffect(() => {
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) {
-        window.location.href = "/login";
-      }
-    });
-
     supabase.auth.getUser().then(({ data }) => {
 
       const email = data.user?.email;
 
-      if (
-        email === "momentumstocksind@gmail.com"
-      ) {
+      if (email === "momentumstocksind@gmail.com") {
         setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
       }
 
     });
-
     loadStocks();
     loadPastTrades();
 
     // 🔐 Check admin
-    const adminFlag = localStorage.getItem("admin");
-
-    if (adminFlag === "true") {
-      setIsAdmin(true);
-    }
+    
     const now = Date.now();
 
     const disclaimerData = localStorage.getItem("disclaimerPrompt");
@@ -398,9 +387,8 @@ export default function Home() {
 
             const canBuy = priceDifferencePercent <= 2;
 
-            const isAdmin =
-              typeof window !== "undefined" &&
-              localStorage.getItem("admin") === "true";
+            
+              
 
             return (
               <div
