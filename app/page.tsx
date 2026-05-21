@@ -136,6 +136,25 @@ export default function Home() {
     setLastUpdated(new Date().toLocaleTimeString());
   }
   useEffect(() => {
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
+        window.location.href = "/login";
+      }
+    });
+
+    supabase.auth.getUser().then(({ data }) => {
+
+      const email = data.user?.email;
+
+      if (
+        email === "momentumstocksind@gmail.com"
+      ) {
+        setIsAdmin(true);
+      }
+
+    });
+
     loadStocks();
     loadPastTrades();
 
@@ -313,6 +332,17 @@ export default function Home() {
         <p className="text-xs text-green-400 mt-2">
           ● Live Updated: {lastUpdated || "Waiting..."}
         </p>
+        {/* ✅ ADD THIS LOGOUT BUTTON */}
+        <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              window.location.href = "/login";
+            }}
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl"
+        >
+            Logout
+        </button>
+
       </div>
     
 
