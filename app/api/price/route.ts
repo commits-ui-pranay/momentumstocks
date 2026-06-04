@@ -33,6 +33,7 @@ export async function GET(req: Request) {
 
     // 🔥 Get exact Yahoo symbol
     const quoteSymbol = result.quotes[0].symbol;
+    console.log("Yahoo matched:", quoteSymbol);
 
     // 🔥 Fetch live market quote
     const quote: any = await yahooFinance.quote(quoteSymbol);

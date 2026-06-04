@@ -15,31 +15,64 @@ export default function Home() {
   const [lastUpdated, setLastUpdated] = useState("");
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
-  
+  const [country, setCountry] = useState("India");
   
   async function loadStocks() {
-    const { data } = await supabase.from("active_stocks").select("*");
+    const { data } = await supabase
+      .from("active_stocks")
+      .select("*")
+      .order("country")
+      .order("buy_date", { ascending: false });
+
     setStocks(data || []);
   }
 
   async function loadPastTrades() {
-    const { data } = await supabase.from("past_trades").select("*");
+    const { data } = await supabase
+      .from("past_trades")
+      .select("*")
+      .order("sell_date", { ascending: false });
     setPastTrades(data || []);
   }
+
+  const groupedStocks = stocks.reduce((acc: any, stock: any) => {
+    const country = stock.country || "India";
+
+    if (!acc[country]) {
+      acc[country] = [];
+    }
+
+    acc[country].push(stock);
+
+    return acc;
+  }, {});
 
   async function addStock() {
     if (!isAdmin) return;
 
-    const res = await fetch(`/api/price?symbol=${name}`);
+    const symbol =
+      country === "India"
+        ? name.toUpperCase().endsWith(".NS")
+          ? name.toUpperCase()
+          : name.toUpperCase() + ".NS"
+        : name.toUpperCase();
+
+    const res = await fetch(`/api/price?symbol=${symbol}`);
     const data = await res.json();
 
+    const finalSymbol =
+      country === "India"
+        ? name.toUpperCase().endsWith(".NS")
+          ? name.toUpperCase()
+          : name.toUpperCase() + ".NS"
+        : name.toUpperCase();
+
     await supabase.from("active_stocks").insert({
-      stock_name: name.toUpperCase().endsWith(".NS")
-        ? name.toUpperCase()
-        : name.toUpperCase() + ".NS",
+      stock_name: finalSymbol,
       buy_price: data.price,
       current_price: data.price,
-      buy_date: new Date().toISOString(), // ✅ ADD THIS
+      country: country,
+      buy_date: new Date().toISOString(),
     });
 
     setName("");
@@ -332,6 +365,21 @@ export default function Home() {
         {/* ✅ ADMIN ONLY */}
         {isAdmin && (
           <>
+            <select
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              className="bg-gray-800 text-white px-3 py-2 rounded"
+            >
+              <option value="India">🇮🇳 India</option>
+              <option value="USA">🇺🇸 USA</option>
+              <option value="China">🇨🇳 China</option>
+              <option value="Japan">🇯🇵 Japan</option>
+              <option value="Australia">🇦🇺 Australia</option>
+              <option value="Brazil">🇧🇷 Brazil</option>
+              <option value="Russia">🇷🇺 Russia</option>
+              <option value="United Kingdom">🇬🇧 United Kingdom</option>
+            </select>
+
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -387,8 +435,19 @@ export default function Home() {
           Projected P/L: {projectedPercent}%
         </p>
 
-        <div className="space-y-4">
-          {stocks.map((s) => {
+        <div className="space-y-8">
+
+          {Object.entries(groupedStocks).map(
+            ([countryName, countryStocks]: any) => (
+              <div key={countryName}>
+
+                <h2 className="text-2xl font-bold text-yellow-400 mt-8 mb-4">
+                  🌍 {countryName}
+                </h2>
+
+                <div className="space-y-4">
+
+                  {countryStocks.map((s: any) => {
             const profit = s.current_price - s.buy_price;
 
             const percent =
@@ -404,16 +463,24 @@ export default function Home() {
                   ? (profit / s.buy_price) * 100
                   : 0;
 
-              await supabase.from("past_trades").insert({
-                stock_name: s.stock_name,
-                buy_price: s.buy_price,
-                sell_price: s.current_price,
-                profit: profit,
-                percent: percent, // ✅ ADD
-                buy_date: s.buy_date, // ✅ ADD
-                sell_date: new Date().toISOString(), // ✅ ADD
-              });
+              const { error: insertError } = await supabase
+                .from("past_trades")
+                .insert({
+                  stock_name: s.stock_name,
+                  buy_price: s.buy_price,
+                  sell_price: s.current_price,
+                  profit: profit,
+                  percent: percent,
+                  country: s.country,
+                  buy_date: s.buy_date,
+                  sell_date: new Date().toISOString(),
+                });
 
+              // console.log("Insert Error:", insertError);
+              if (insertError) {
+                console.error(insertError);
+                return;
+              }
               await supabase.from("active_stocks").delete().eq("id", s.id);
 
               loadStocks();
@@ -433,7 +500,13 @@ export default function Home() {
                 className="flex justify-between items-center bg-black border border-gray-800 p-4 rounded-xl"
               >
                 <div>
-                  <p className="font-bold">{s.stock_name}</p>
+                  <div className="flex gap-2 items-center">
+                    <p className="font-bold">{s.stock_name}</p>
+
+                    <span className="text-xs bg-gray-700 px-2 py-1 rounded">
+                      🌍 {s.country}
+                    </span>
+                  </div>
 
                   <p className="text-gray-400 text-sm">
                     Buy ₹{s.buy_price} → ₹{s.current_price}
@@ -482,13 +555,16 @@ export default function Home() {
                       Sell
                     </button>
                   )}
-
                 </div>
               </div>
-            );
+            );  
           })}
-        </div>
+        </div> 
       </div>
+    )
+  )}    
+</div>
+</div>
       <h2 className="text-2xl font-bold mt-10">Past Trades</h2>
 
       <div className="grid md:grid-cols-3 gap-4 mt-4">
@@ -499,7 +575,9 @@ export default function Home() {
               className="bg-gray-900 border border-gray-800 p-5 rounded-2xl text-white"
             >
               <h3 className="font-bold">{p.stock_name}</h3>
-
+              <p className="text-yellow-400 text-sm">
+                🌍 {p.country || "India"}
+              </p>
               <p>Buy: INR {p.buy_price}</p>
               <p>Sell: INR {p.sell_price}</p>
 
@@ -516,7 +594,9 @@ export default function Home() {
                   p.profit >= 0 ? "text-green-400" : "text-red-400"
                 }`}
               >
-                Profit: ₹{p.profit} ({p.percent?.toFixed(2)}%)
+                Profit: ₹{Number(p.profit || 0).toFixed(2)}
+                {" "}
+                ({Number(p.percent || 0).toFixed(2)}%)
               </p>
             </div>
           );
