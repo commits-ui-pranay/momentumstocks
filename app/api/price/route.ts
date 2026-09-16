@@ -5,51 +5,53 @@ const yahooFinance = new YahooFinance();
 
 export async function GET(req: Request) {
   try {
-
     const { searchParams } = new URL(req.url);
 
-    const symbol = searchParams.get("symbol");
+    const symbolsParam = searchParams.get("symbols");
 
-    if (!symbol) {
+    if (!symbolsParam) {
       return NextResponse.json(
-        { error: "No symbol provided" },
+        { error: "No symbols provided" },
         { status: 400 }
       );
     }
 
-    // 🔥 Search NSE symbol
-    const result: any = await yahooFinance.search(symbol);
+    // Convert comma-separated symbols into an array
+    const symbols = symbolsParam
+      .split(",")
+      .map((symbol) => symbol.trim())
+      .filter(Boolean);
 
-    if (
-      !result ||
-      !result.quotes ||
-      result.quotes.length === 0
-    ) {
-      return NextResponse.json({
-        price: 0,
-        error: "No quote found",
-      });
+    if (symbols.length === 0) {
+      return NextResponse.json(
+        { error: "No valid symbols provided" },
+        { status: 400 }
+      );
     }
 
-    // 🔥 Get exact Yahoo symbol
-    const quoteSymbol = result.quotes[0].symbol;
-    console.log("Yahoo matched:", quoteSymbol);
+    console.log("Fetching prices for:", symbols);
 
-    // 🔥 Fetch live market quote
-    const quote: any = await yahooFinance.quote(quoteSymbol);
+    // Fetch all quotes in one Yahoo request
+    const quotes: any[] = await yahooFinance.quote(symbols);
+
+    const prices = quotes.map((quote) => ({
+      symbol: quote.symbol,
+      price: quote.regularMarketPrice ?? 0,
+      time: quote.regularMarketTime ?? null,
+    }));
 
     return NextResponse.json({
-      price: quote.regularMarketPrice || 0,
-      time: quote.regularMarketTime || null,
+      prices,
     });
-
   } catch (err) {
-
     console.error("Yahoo Finance Error:", err);
 
-    return NextResponse.json({
-      price: 0,
-      error: "Failed to fetch price",
-    });
+    return NextResponse.json(
+      {
+        error: "Failed to fetch prices",
+        prices: [],
+      },
+      { status: 500 }
+    );
   }
 }
