@@ -489,15 +489,15 @@ export default function Home() {
             <ul className="space-y-4 text-gray-300 text-sm leading-7">
 
               <li>
-                • The stocks displayed on Jacks Terminal are provided strictly for educational and informational purposes only. Investors are advised to consult a qualified financial advisor before making any investment decisions.
+                • The stocks displayed on Only Stocks are provided strictly for educational and informational purposes only. Investors are advised to consult a qualified financial advisor before making any investment decisions.
               </li>
 
               <li>
-                • Stocks featured on Jacks Terminal are periodically refreshed and reviewed on a quarter-over-quarter (QoQ) basis to align with evolving market trends and company performance.
+                • Stocks featured on Only Stocks are periodically refreshed weekly and reviewed on a quarter-over-quarter (QoQ) basis for last 6 quarters to align with evolving market trends and company performance.
               </li>
 
               <li>
-                • The stocks showcased on this platform are selected based on strong market momentum, relative strength, and notable quarter-over-quarter business performance indicators.
+                • The stocks showcased on this platform are selected based on strong market momentum, relative strength, their trading volume, majority stake holder holding patterns, and notable quarter-over-quarter business performance indicators.
               </li>
 
             </ul>
@@ -518,7 +518,7 @@ export default function Home() {
         </div>
       )}
       <h1 className="text-4xl font-bold text-blue-500">
-        Jacks Terminal | Momentum Stocks Dashboard
+        Only Stocks | Momentum Dashboard
       </h1>
     
       <div className="mt-6 flex gap-3 items-center">
@@ -814,18 +814,18 @@ export default function Home() {
         <div className="bg-gray-900 border border-gray-700 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
 
           <h2 className="text-2xl font-bold text-blue-400 mb-4">
-            ❤️ Support Jacks Terminal
+            ❤️ Support Only Stocks
           </h2>
 
           <p className="text-gray-300 text-sm leading-6 mb-6">
-            Your support helps us continue improving Jacks Terminal with better market insights, stronger momentum tracking, and advanced analytics tools for the community.
+            Your support helps us continue improving Only Stocks with better market insights, stronger momentum tracking, and advanced analytics tools for the community.
           </p>
 
           <div className="flex justify-center mb-6">
 
             <img
               src="/jacks_terminal_upi_qr.png"
-              alt="Support Jacks Terminal QR"
+              alt="Support Only Stocks QR"
               className="w-64 h-64 rounded-2xl border border-gray-700 bg-white p-2"
             />
 
