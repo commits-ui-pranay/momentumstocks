@@ -47,7 +47,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
       <div className="bg-gray-900 p-8 rounded-2xl w-full max-w-md border border-gray-800">
         <h1 className="text-3xl font-bold mb-6 text-center text-blue-400">
-          Jacks Terminal
+          Only stocks {isLogin ? "Login" : "Sign Up"}
         </h1>
 
         <input

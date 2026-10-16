@@ -834,7 +834,7 @@ export default function Home() {
           
 
           <p className="text-gray-300 text-sm leading-6 mb-6">
-            If you find Jacks Terminal valuable, you can support the project by scanning the QR code with any upi app ❤️ . Your contribution helps us improve market analytics, momentum tracking, and platform performance for the community.
+            If you find Only Stocks valuable, you can support the project by scanning the QR code with any upi app ❤️ . Your contribution helps us improve market analytics, momentum tracking, and platform performance for the community.
           </p>
 
           <button
