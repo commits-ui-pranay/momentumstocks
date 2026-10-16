@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
@@ -9,7 +9,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  async function handleAuth() {
+  async function handleAuth(event: FormEvent<HTMLFormElement>) {
+   event.preventDefault();
     if (!email || !password) {
       alert("Please fill all fields");
       return;
@@ -50,28 +51,32 @@ export default function LoginPage() {
           Only Stocks 
         </h1>
 
-        <input
-          type="email"
-          placeholder="Email Address"
-          className="w-full p-3 rounded-xl bg-gray-800 mb-4"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <form onSubmit={handleAuth}>
+          <input
+            type="email"
+            placeholder="Email Address"
+            className="w-full p-3 rounded-xl bg-gray-800 mb-4"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full p-3 rounded-xl bg-gray-800 mb-4"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full p-3 rounded-xl bg-gray-800 mb-4"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
-        <button
-          onClick={handleAuth}
-          className="w-full bg-blue-500 hover:bg-blue-600 p-3 rounded-xl font-bold"
-        >
-          {isLogin ? "Login" : "Create Account"}
-        </button>
+          <button
+            type="submit"
+            className="w-full bg-blue-500 hover:bg-blue-600 p-3 rounded-xl font-bold"
+          >
+            {isLogin ? "Login" : "Create Account"}
+          </button>
+        </form>
 
         <p
           className="text-center mt-4 text-sm text-gray-400 cursor-pointer"
