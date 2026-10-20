@@ -168,10 +168,12 @@ export default function Home() {
     alert(`Failed to add ${symbol}`);
   }
 }
-  function handleBuy(stockName: string) {
+  
+function handleBuy(stockName: string, stockCountry: string) {
+  const cleanSymbol = stockName.replace(/\.NS$/i, "").toUpperCase();
 
-    const cleanSymbol = stockName.replace(".NS", "");
-
+  // Keep the existing six broker choices for Indian stocks.
+  if (stockCountry === "India") {
     const broker = prompt(
       "Choose Broker:\n1 = Zerodha\n2 = Groww\n3 = Angel One\n4 = Upstox\n5 = 5Paisa\n6 = Dhan"
     );
@@ -179,37 +181,97 @@ export default function Home() {
     let url = "";
 
     switch (broker) {
-
       case "1":
         url = `https://kite.zerodha.com/chart/ext/ciq/NSE/${cleanSymbol}/${cleanSymbol}`;
         break;
-
       case "2":
         url = `https://groww.in/stocks/${cleanSymbol.toLowerCase()}`;
         break;
-
       case "3":
         url = `https://www.angelone.in/stocks/${cleanSymbol.toLowerCase()}`;
         break;
-
       case "4":
         url = `https://upstox.com/stocks/${cleanSymbol.toLowerCase()}`;
         break;
-
       case "5":
         url = `https://www.5paisa.com/stocks/${cleanSymbol.toLowerCase()}-share-price`;
         break;
-
       case "6":
         url = `https://dhan.co/stocks/${cleanSymbol.toLowerCase()}/`;
         break;
-
       default:
         return;
     }
 
-    window.open(url, "_blank");
+    window.open(url, "_blank", "noopener,noreferrer");
+    return;
   }
+
+  // For US stocks, let users choose their account category.
+  if (stockCountry === "USA") {
+    const category = prompt(
+      "Choose your account category:\n1 = Indian users\n2 = US/NRI users"
+    );
+
+    let broker = "";
+    let url = "";
+
+    if (category === "1") {
+      broker = prompt(
+        "Choose broker for US stocks:\n1 = INDmoney\n2 = Vested\n3 = Zerodha"
+      ) || "";
+
+      switch (broker) {
+        case "1":
+          url = "https://www.indmoney.com/";
+          break;
+        case "2":
+          url = "https://vestedfinance.com/";
+          break;
+        case "3":
+          url = "https://zerodha.com/";
+          break;
+        default:
+          return;
+      }
+    } else if (category === "2") {
+      broker = prompt(
+        "Choose US/NRI broker:\n1 = Robinhood\n2 = Interactive Brokers\n3 = Charles Schwab"
+      ) || "";
+
+      switch (broker) {
+        case "1":
+          url = "https://robinhood.com/";
+          break;
+        case "2":
+          url = "https://www.interactivebrokers.com/";
+          break;
+        case "3":
+          url = "https://www.schwab.com/";
+          break;
+        default:
+          return;
+      }
+    } else {
+      return;
+    }
+
+    if (url) {
+      const newTab = window.open("", "_blank");
+
+      if (newTab) {
+        newTab.opener = null;
+        newTab.location.href = url;
+      } else {
+        alert("Your browser blocked the new tab. Please allow pop-ups for localhost:3000.");
+      }
+    }
+    return;
+  }
+
+  alert(`Broker options are not configured for ${stockCountry} stocks yet.`);
+}
+
   async function updatePrices() {
   // Prevent overlapping refresh operations
   if (refreshingRef.current) {
@@ -722,7 +784,7 @@ export default function Home() {
                   {/* ✅ BUY BUTTON */}
                   {canBuy && (
                     <button
-                      onClick={() => handleBuy(s.stock_name)}
+                      onClick={() => handleBuy(s.stock_name, s.country || "India")}
                       className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl"
                     >
                       Buy
